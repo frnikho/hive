@@ -5,11 +5,11 @@ use crate::exceptions::db::DatabaseException;
 pub type DBPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type DBPooled = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
-pub fn create_pool(database_url: &str) -> Result<DBPool, DatabaseException<'static>> {
+pub fn create_pool(database_url: &str) -> Result<DBPool, DatabaseException> {
     let manager = ConnectionManager::<PgConnection>::new(database_url);
     match r2d2::Pool::builder().build(manager) {
         Ok(pool) => Ok(pool), 
-        Err(_) => Err(DatabaseException::ConnexionException("Cannot create database pool !")),
+        Err(_) => Err(DatabaseException::ConnexionException(String::from("Cannot create database pool !"))),
     }
 }
 

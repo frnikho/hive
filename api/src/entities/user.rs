@@ -49,7 +49,17 @@ impl User {
         self.created_by = Some(Box::new(user.clone()));
         self
     }
+    
+    pub fn verify_password(&self, password: &str) -> bool {
+        bcrypt::verify(password, &self.password).unwrap_or(false)
+    }
 
+}
+
+impl Into<User> for UserModel {
+    fn into(self) -> User {
+        User::new(&self)
+    }
 }
 
 #[cfg(test)]

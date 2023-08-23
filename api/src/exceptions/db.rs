@@ -2,38 +2,40 @@ use diesel::result::{DatabaseErrorKind, Error};
 use crate::exceptions::api::ApiException;
 
 #[derive(Debug, Clone)]
-pub enum DatabaseException<'a> {
-    ConnexionException(&'a str),
-    FindException(&'a str),
-    UnknownError(&'a str),
+pub enum DatabaseException {
+    ConnexionException(String),
+    FindException(String),
+    UniqueViolation(String),
+    UnknownError(String),
 }
 
-impl<'a> Into<DatabaseException<'a>> for Error {
-    fn into(self) -> DatabaseException<'a> {
+impl Into<DatabaseException> for Error {
+    fn into(self) -> DatabaseException {
         match self {
-            Error::NotFound => DatabaseException::FindException("Cannot find user !"),
-            Error::DeserializationError(..) => DatabaseException::UnknownError("Deserialization Error !"),
+            Error::NotFound => DatabaseException::FindException(String::from("Entity not found")),
+            Error::DeserializationError(..) => DatabaseException::UnknownError(String::from("Deserialization Error !")),
             Error::DatabaseError(err, _) => match err {
-                DatabaseErrorKind::UniqueViolation => DatabaseException::UnknownError(""),
-                _ => DatabaseException::UnknownError("Unknown database error"),
+                DatabaseErrorKind::UniqueViolation => DatabaseException::UniqueViolation(String::from("Entity already exists")),
+                _ => DatabaseException::UnknownError(String::from("Unknown database error")),
             }
-            _ => DatabaseException::UnknownError("Unknown database error"),
+            _ => DatabaseException::UnknownError(String::from("Unknown database error")),
         }
     }
 }
 
-impl<'a> Into<ApiException<'a>> for DatabaseException<'a> {
-    fn into(self) -> ApiException<'a> {
+impl Into<ApiException> for DatabaseException {
+    fn into(self) -> ApiException {
         match self {
-            DatabaseException::FindException(msg) => ApiException::BadRequest(msg, ""),
-            DatabaseException::UnknownError(msg) => ApiException::BadRequest(msg, ""),
-            _ => todo!()
+            DatabaseException::FindException(msg) => ApiException::ResourceNotFound(msg.to_string()),
+            DatabaseException::UnknownError(msg) => ApiException::UnknownDbError(msg.to_string()),
+            DatabaseException::ConnexionException(msg) => ApiException::InternalError(msg.to_string()),
+            DatabaseException::UniqueViolation(msg) => ApiException::DuplicateResource(msg.to_string()),
         }
     }
 }
 
-impl<'a> Into<ApiException<'a>> for r2d2::Error {
-    fn into(self) -> ApiException<'a> {
-        ApiException::InternalError("Error loading database pool", "HIVE_1000100")
+impl<'a> Into<ApiException> for r2d2::Error {
+    fn into(self) -> ApiException {
+        ApiException::InternalError(String::from("HIVE_1000100"))
     }
 }

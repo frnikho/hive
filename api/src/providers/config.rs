@@ -8,6 +8,9 @@ pub struct Config {
     pub api_workers: Option<usize>,
     pub api_port: Option<u16>,
     pub api_host: Option<String>,
+    pub api_session_url: String,
+    pub api_cache_url: String,
+    pub api_session_secret: String,
 }
 
 impl Config {

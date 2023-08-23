@@ -1,26 +1,35 @@
 use actix_web::Responder;
-use actix_web::web::ServiceConfig;
+use actix_web::web::{Path, ServiceConfig};
+use crate::dtos::user::{CreateUserRequest, UpdateUserRequest};
+use crate::extractors::req_authority::ReqAuthority;
+use crate::extractors::req_box::ReqBox;
+use crate::extractors::req_dto::Dto;
+use crate::extractors::req_queries::ReqPagination;
 use crate::handlers::handler::Handler;
+use crate::services::user_service::UserService;
 
 pub struct UserHandler;
 
 impl UserHandler {
 
-    async fn list() -> impl Responder {
-        ""
+    async fn list(mut tool: ReqBox, auth: ReqAuthority, pag: ReqPagination) -> impl Responder {
+        UserService::list(&mut tool.db, auth.0, pag.0)
     }
 
-    async fn create() -> impl Responder {
-        ""
+    async fn create(mut tool: ReqBox, auth: ReqAuthority, body: Dto<CreateUserRequest>) -> impl Responder {
+        UserService::create(&mut tool.db, auth.0, body.value)
     }
-    async fn find() -> impl Responder {
-        ""
+
+    async fn find(mut tool: ReqBox, auth: ReqAuthority, path: Path<String>) -> impl Responder {
+        UserService::find(&mut tool.db, auth.0, path.into_inner())
     }
-    async fn update() -> impl Responder {
-        ""
+
+    async fn update(mut tool: ReqBox, auth: ReqAuthority, path: Path<String>,body: Dto<UpdateUserRequest>) -> impl Responder {
+        UserService::update(&mut tool.db, auth.0, path.into_inner(), body.value)
     }
-    async fn delete() -> impl Responder {
-        ""
+
+    async fn delete(mut tool: ReqBox, auth: ReqAuthority, path: Path<String>) -> impl Responder {
+        UserService::delete(&mut tool.db, auth.0, path.into_inner())
     }
 }
 

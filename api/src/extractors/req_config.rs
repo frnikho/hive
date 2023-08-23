@@ -12,14 +12,14 @@ pub struct ReqConfig {
 }
 
 impl FromRequest for ReqConfig {
-    type Error = ApiException<'static>;
+    type Error = ApiException;
     type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
         let request = req.clone();
         Box::pin(async move {
             let config = request.app_data::<Data<AppState>>()
-                .ok_or(ApiException::InternalError("Cannot get application state !", "APE-100300"))?
+                .ok_or(ApiException::InternalError(String::from("APE-100300")))?
                 .config.clone();
             Ok(ReqConfig {config})
         })
