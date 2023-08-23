@@ -1,0 +1,8 @@
+.idea
+web/node_modules
+web/.idea
+web/dist
+api/target
+api/.idea
+.env
+**/*.env
