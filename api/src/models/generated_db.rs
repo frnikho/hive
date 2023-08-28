@@ -27,6 +27,18 @@ diesel::table! {
         deleted_by_user_id -> Nullable<Varchar>,
         is_deleted -> Bool,
         is_activated -> Bool,
+        version -> Varchar,
+        #[max_length = 1024]
+        link_url -> Nullable<Varchar>,
+    }
+}
+
+diesel::table! {
+    firmwares_tags (id) {
+        id -> Varchar,
+        tag_id -> Varchar,
+        firmware_id -> Varchar,
+        created_date -> Timestamp,
     }
 }
 
@@ -54,6 +66,17 @@ diesel::table! {
         updated_date -> Nullable<Timestamp>,
         updated_by_user_id -> Nullable<Varchar>,
         deleted_by_user_id -> Nullable<Varchar>,
+    }
+}
+
+diesel::table! {
+    tags (id) {
+        id -> Varchar,
+        created_date -> Timestamp,
+        name -> Varchar,
+        description -> Nullable<Varchar>,
+        created_by_user_id -> Nullable<Varchar>,
+        tag_type -> Varchar,
     }
 }
 
@@ -88,12 +111,17 @@ diesel::table! {
     }
 }
 
+diesel::joinable!(firmwares_tags -> firmwares (firmware_id));
+diesel::joinable!(firmwares_tags -> tags (tag_id));
+diesel::joinable!(tags -> users (created_by_user_id));
 diesel::joinable!(users_roles -> roles (role_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     devices,
     firmwares,
+    firmwares_tags,
     roles,
+    tags,
     users,
     users_roles,
 );

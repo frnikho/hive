@@ -16,6 +16,7 @@ pub struct User {
     pub updated_by: Option<Box<User>>,
     pub deleted_by: Option<Box<User>>,
     pub created_by: Option<Box<User>>,
+    pub is_deleted: bool,
 }
 
 impl User {
@@ -32,6 +33,7 @@ impl User {
             updated_by: None,
             deleted_by: None,
             created_by: None,
+            is_deleted: model.is_deleted,
         }
     }
 
@@ -52,6 +54,23 @@ impl User {
     
     pub fn verify_password(&self, password: &str) -> bool {
         bcrypt::verify(password, &self.password).unwrap_or(false)
+    }
+
+    pub fn into_model(self) -> UserModel {
+        UserModel {
+            id: self.id,
+            email: self.email,
+            firstname: self.firstname,
+            lastname: self.lastname,
+            password: self.password,
+            created_date: self.created_date,
+            updated_date: self.updated_date,
+            deleted_date: self.deleted_date,
+            updated_by_user_id: self.updated_by.as_ref().map(|x| x.id.clone()),
+            deleted_by_user_id: self.deleted_by.as_ref().map(|x| x.id.clone()),
+            created_by_user_id: self.created_by.as_ref().map(|x| x.id.clone()),
+            is_deleted: self.is_deleted,
+        }
     }
 
 }

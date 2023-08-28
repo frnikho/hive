@@ -9,4 +9,12 @@ impl Pagination {
     pub fn exec() -> String {
         "".to_string()
     }
+
+    pub fn bypass() -> Self {
+        Self {
+            page: 0,
+            limit: 100,
+            bypass: true,
+        }
+    }
 }

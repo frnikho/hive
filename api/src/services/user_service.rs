@@ -1,5 +1,5 @@
 use diesel::PgConnection;
-use crate::dtos::user::{CreateUserRequest, UpdateUserRequest};
+use crate::dtos::user::{CreateAccessToken, CreateUserRequest, UpdateUserRequest};
 use crate::entities::authority::Authority;
 use crate::entities::pagination::Pagination;
 use crate::entities::user::{User, UserList};
@@ -31,5 +31,17 @@ impl UserService {
     pub fn delete(db: &mut PgConnection, auth: Authority, id: String) -> Result<Template<User>, ApiException> {
         let user = UserRepository::delete(db, id, Some(auth.get_user().clone().id))?;
         Ok(Template::new(Some(auth), Some(user)))
+    }
+
+    pub fn create_access_token(db: &mut PgConnection, auth: Authority, body: CreateAccessToken) {
+
+    }
+
+    pub fn delete_access_token(db: &mut PgConnection, auth: Authority, id: String) {
+
+    }
+
+    pub fn list_access_token(db: &mut PgConnection, auth: Authority, pag: Pagination) {
+
     }
 }

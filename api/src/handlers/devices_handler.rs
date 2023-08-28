@@ -1,24 +1,29 @@
 use actix_web::Responder;
-use actix_web::web::ServiceConfig;
+use actix_web::web::{Path, ServiceConfig};
+use crate::dtos::device::{CreateDeviceRequest, UpdateDeviceRequest};
+use crate::extractors::req_authority::ReqAuthority;
+use crate::extractors::req_box::ReqBox;
+use crate::extractors::req_dto::Dto;
+use crate::extractors::req_queries::ReqPagination;
 use crate::handlers::handler::Handler;
 
 pub struct DeviceHandler;
 
 impl DeviceHandler {
 
-    async fn list() -> impl Responder {
+    async fn list(tool: ReqBox, auth: ReqAuthority, pag: ReqPagination) -> impl Responder {
         ""
     }
-    async fn create() -> impl Responder {
+    async fn create(tool: ReqBox, auth: ReqAuthority, body: Dto<CreateDeviceRequest>) -> impl Responder {
         ""
     }
-    async fn find() -> impl Responder {
+    async fn find(tool: ReqBox, auth: ReqAuthority, device_id: Path<String>) -> impl Responder {
         ""
     }
-    async fn update() -> impl Responder {
+    async fn update(tool: ReqBox, auth: ReqAuthority, body: Dto<UpdateDeviceRequest>, device_id: Path<String>) -> impl Responder {
         ""
     }
-    async fn delete() -> impl Responder {
+    async fn delete(tool: ReqBox, auth: ReqAuthority, device_id: Path<String>) -> impl Responder {
         ""
     }
 }

@@ -50,3 +50,13 @@ impl Into<CreateUser> for AuthFirstLoginRequest {
         }
     }
 }
+
+#[derive(Deserialize, Debug, Clone, Validate)]
+pub struct OauthCodeRequest {
+
+}
+
+#[derive(Deserialize, Debug, Clone, Validate)]
+pub struct OauthTokenRequest {
+
+}

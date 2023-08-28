@@ -23,6 +23,13 @@ pub struct UserModel {
     pub is_deleted: bool,
 }
 
+#[derive(Queryable, Selectable, Identifiable, Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[diesel(table_name = crate::models::generated_db::users)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct UserIdModel {
+    pub id: String,
+}
+
 #[derive(Insertable, Debug)]
 #[diesel(table_name = crate::models::generated_db::users)]
 pub struct CreateUserModel {
@@ -63,13 +70,28 @@ impl Default for UpdateUserModel {
     }
 }
 
+#[derive(Queryable, Selectable, Identifiable, Associations, Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[diesel(belongs_to(UserModel, foreign_key = user_id))]
+#[diesel(belongs_to(crate::models::role::RoleModel, foreign_key = role_id))]
+#[diesel(table_name = crate::models::generated_db::users_roles)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+#[diesel(primary_key(user_id, role_id))]
+pub struct UserRoleModel {
+    pub id: String,
+    pub user_id: String,
+    pub role_id: String,
+    pub created_date: NaiveDateTime,
+}
+
 use crate::models::generated_db::users::dsl::*;
+use crate::models::role::RoleModel;
 
 impl UserModel {
 
     pub fn create(conn: &mut PgConnection, new_user: CreateUserModel) -> Result<Self, DatabaseException> {
         diesel::insert_into(users)
             .values(new_user)
+            .returning(UserModel::as_returning())
             .get_result::<UserModel>(conn).map_err(|x| x.into())
     }
 
@@ -107,6 +129,42 @@ impl UserModel {
             .filter(is_deleted.eq(false))
             .set(update_user)
             .get_result::<UserModel>(conn).map_err(|x| x.into())
+    }
+
+    pub fn list_roles(&self, conn: &mut PgConnection, pag: Pagination) -> Result<Vec<RoleModel>, DatabaseException> {
+        let query = UserRoleModel::belonging_to(&self)
+            .inner_join(crate::models::generated_db::roles::dsl::roles).into_boxed();
+        match pag.bypass {
+            true => query,
+            false => query.limit(pag.limit as i64).offset((pag.page * pag.limit) as i64)
+        }.select(RoleModel::as_select())
+            .load::<RoleModel>(conn)
+            .map_err(|err| err.into())
+    }
+
+    pub fn get_role(&self, conn: &mut PgConnection, role_id_to_find: String) -> Result<UserRoleModel, DatabaseException> {
+        UserRoleModel::belonging_to(self)
+            .inner_join(crate::models::generated_db::roles::table)
+            .filter(crate::models::generated_db::roles::id.eq(role_id_to_find))
+            .select(UserRoleModel::as_select())
+            .first(conn).map_err(|x| x.into())
+    }
+
+    pub fn add_role(&self, conn: &mut PgConnection, role: RoleModel) -> Result<UserRoleModel, DatabaseException> {
+        use crate::models::generated_db::users_roles;
+        diesel::insert_into(users_roles::table)
+            .values((users_roles::user_id.eq(self.id.clone()), users_roles::role_id.eq(role.id.clone())))
+            .returning(UserRoleModel::as_returning())
+            .get_result(conn).map_err(|x|x.into())
+    }
+
+    pub fn remove_role(&self, conn: &mut PgConnection, role: RoleModel) -> Result<(), DatabaseException> {
+        use crate::models::generated_db::users_roles;
+        self.get_role(conn, role.id.clone()).map_err(|x| x.into())?;
+        diesel::delete(users_roles::table.filter(users_roles::user_id.eq(self.id.clone()).and(users_roles::role_id.eq(role.id.clone()))))
+            .execute(conn)
+            .map(|_| ())
+            .map_err(|x| x.into())
     }
 
 }

@@ -44,3 +44,11 @@ impl UpdateUserRequest {
     }
 
 }
+
+#[derive(Deserialize, Serialize, Clone, Debug, Validate)]
+pub struct CreateAccessToken {
+    #[validate(length(min = 2, max = 255))]
+    name: String,
+    #[validate(length(max = 512))]
+    description: Option<String>,
+}

@@ -1,8 +1,8 @@
 use actix_session::Session;
 use bcrypt::hash;
 use crate::dtos::auth::{AuthFirstLoginRequest, AuthLoginRequest};
-use crate::entities::authority::{Authority, AuthoritySession};
-use crate::entities::session::SessionValue;
+use crate::entities::authority::Authority;
+use crate::entities::session::{AuthoritySession, SessionValue};
 use crate::entities::user::User;
 use crate::exceptions::api::ApiException;
 use crate::providers::cache::CacheConnection;
