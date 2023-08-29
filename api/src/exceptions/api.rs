@@ -28,6 +28,29 @@ impl Display for ApiException {
     }
 }
 
+/*impl From<diesel::result::Error> for ApiException {
+    fn from(err: diesel::result::Error) -> Self {
+        return match err {
+            diesel::result::Error::DatabaseError(_, err) => {
+                match err.message().to_lowercase().as_str() {
+                    "unique_violation" => {
+                        let msg = err.message().to_lowercase();
+                        if msg.contains("email") {
+                            return ApiException::DuplicateResource(String::from("APE-100200"))
+                        }
+                        if msg.contains("username") {
+                            return ApiException::DuplicateResource(String::from("APE-100210"))
+                        }
+                        ApiException::UnknownDbError(String::from("APE-100220"))
+                    },
+                    _ => ApiException::UnknownDbError(String::from("APE-100230"))
+                }
+            },
+            _ => ApiException::UnknownDbError(String::from("APE-100240"))
+        }
+    }
+}*/
+
 impl ResponseError for ApiException {
     fn status_code(&self) -> StatusCode {
         match self {

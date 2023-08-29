@@ -36,9 +36,9 @@ impl FromRequest for ReqAuthority {
                 None => return Err(ApiException::Unauthorized(String::from("APE-100120")))
             };
 
-            let user = UserRepository::find(&mut db, UserFindOneClause::Id(authority_session.user_id))
+            let user = UserRepository::find(&mut db, &UserFindOneClause::Id(authority_session.user_id))
                 .map_err(|x| x.into())?;
-            let roles = RoleRepo::for_user(&user, &mut db, Pagination::bypass()).map_err(|x| x.into())?;
+            let roles = RoleRepo::for_user(&user, &mut db, &Pagination::bypass()).map_err(|x| x.into())?;
             let authority = Authority::User(user, roles);
 
             Ok(ReqAuthority(authority))

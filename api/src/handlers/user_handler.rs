@@ -32,19 +32,20 @@ impl UserHandler {
         UserService::delete(&mut tool.db, auth.0, path.into_inner())
     }
 
-    async fn list_access_token(mut tool: ReqBox, auth: ReqAuthority, pag: ReqPagination) -> impl Responder {
+    async fn list_access_token(mut tool: ReqBox, auth: ReqAuthority, pag: ReqPagination, path: Path<String>) -> impl Responder {
+        UserService::list_access_token(&mut tool.db, auth.0,pag.0, path.into_inner());
         ""
     }
 
-    async fn create_access_token(mut tool: ReqBox, auth: ReqAuthority, pag: ReqPagination) -> impl Responder {
+    async fn create_access_token(mut tool: ReqBox, auth: ReqAuthority, pag: ReqPagination, path: Path<String>) -> impl Responder {
         ""
     }
 
-    async fn get_access_token(mut tool: ReqBox, auth: ReqAuthority, path: Path<String>) -> impl Responder {
+    async fn get_access_token(mut tool: ReqBox, auth: ReqAuthority, path: Path<(String, String)>) -> impl Responder {
         ""
     }
 
-    async fn revoke_access_token(mut tool: ReqBox, auth: ReqAuthority, path: Path<String>) -> impl Responder {
+    async fn revoke_access_token(mut tool: ReqBox, auth: ReqAuthority, path: Path<(String, String)>) -> impl Responder {
         ""
     }
 }
@@ -56,9 +57,9 @@ impl Handler for UserHandler {
         cfg.route("/users/{id}/", actix_web::web::get().to(Self::find));
         cfg.route("/users/{id}/", actix_web::web::patch().to(Self::update));
         cfg.route("/users/{id}/", actix_web::web::delete().to(Self::delete));
-        cfg.route("/users/access_token/token/", actix_web::web::get().to(Self::list_access_token));
-        cfg.route("/users/access_token/token/", actix_web::web::post().to(Self::create_access_token));
-        cfg.route("/users/access_token/token/{id}", actix_web::web::get().to(Self::get_access_token));
-        cfg.route("/users/access_token/token/{id}", actix_web::web::delete().to(Self::revoke_access_token));
+        cfg.route("/users/{id}/access_token/", actix_web::web::get().to(Self::list_access_token));
+        cfg.route("/users/{id}/access_token/", actix_web::web::post().to(Self::create_access_token));
+        cfg.route("/users/{id}/access_token/{token_id}/", actix_web::web::get().to(Self::get_access_token));
+        cfg.route("/users/{id}/access_token/{token_id}/", actix_web::web::delete().to(Self::revoke_access_token));
     }
 }

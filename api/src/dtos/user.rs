@@ -33,7 +33,6 @@ pub struct UpdateUserRequest {
 }
 
 impl UpdateUserRequest {
-
     pub fn transform_repo(self, updated_by: Option<String>) -> UpdateUser {
         UpdateUser {
             firstname: self.firstname,
@@ -42,13 +41,22 @@ impl UpdateUserRequest {
             updated_by_user_id: updated_by,
         }
     }
-
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, Validate)]
-pub struct CreateAccessToken {
+pub struct CreateAccessTokenRequest {
     #[validate(length(min = 2, max = 255))]
     name: String,
     #[validate(length(max = 512))]
     description: Option<String>,
+}
+
+impl CreateAccessTokenRequest {
+    pub fn transform_repo(self, created_by: Option<String>) -> CreateA {
+        CreateAccessToken {
+            name: self.name,
+            description: self.description,
+            created_by_user_id: created_by,
+        }
+    }
 }

@@ -63,7 +63,7 @@ impl RoleRepo {
             .map(|x| Role::from_vec_model(x))
     }
 
-    pub fn for_user(user: &User, conn: &mut PgConnection, pag: Pagination) -> Result<RoleList, ApiException> {
+    pub fn for_user(user: &User, conn: &mut PgConnection, pag: &Pagination) -> Result<RoleList, ApiException> {
         user.clone().into_model().list_roles(conn, pag)
             .map_err(|x| x.into())
             .map(|x| Role::from_vec_model(x))

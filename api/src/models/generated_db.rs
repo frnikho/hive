@@ -7,6 +7,21 @@ pub mod sql_types {
 }
 
 diesel::table! {
+    access_token (id) {
+        id -> Varchar,
+        #[max_length = 255]
+        name -> Varchar,
+        #[max_length = 512]
+        key -> Varchar,
+        created_date -> Timestamp,
+        deleted_date -> Nullable<Timestamp>,
+        is_deleted -> Bool,
+        created_by_user_id -> Varchar,
+        expiration -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     devices (id) {
         id -> Varchar,
     }
@@ -27,18 +42,6 @@ diesel::table! {
         deleted_by_user_id -> Nullable<Varchar>,
         is_deleted -> Bool,
         is_activated -> Bool,
-        version -> Varchar,
-        #[max_length = 1024]
-        link_url -> Nullable<Varchar>,
-    }
-}
-
-diesel::table! {
-    firmwares_tags (id) {
-        id -> Varchar,
-        tag_id -> Varchar,
-        firmware_id -> Varchar,
-        created_date -> Timestamp,
     }
 }
 
@@ -70,17 +73,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    tags (id) {
-        id -> Varchar,
-        created_date -> Timestamp,
-        name -> Varchar,
-        description -> Nullable<Varchar>,
-        created_by_user_id -> Nullable<Varchar>,
-        tag_type -> Varchar,
-    }
-}
-
-diesel::table! {
     users (id) {
         id -> Varchar,
         #[max_length = 512]
@@ -102,6 +94,13 @@ diesel::table! {
 }
 
 diesel::table! {
+    users_access_token (user_id, access_token_id) {
+        access_token_id -> Varchar,
+        user_id -> Varchar,
+    }
+}
+
+diesel::table! {
     users_roles (user_id, role_id) {
         id -> Varchar,
         user_id -> Varchar,
@@ -111,17 +110,17 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(firmwares_tags -> firmwares (firmware_id));
-diesel::joinable!(firmwares_tags -> tags (tag_id));
-diesel::joinable!(tags -> users (created_by_user_id));
+diesel::joinable!(access_token -> users (created_by_user_id));
+diesel::joinable!(users_access_token -> access_token (access_token_id));
+diesel::joinable!(users_access_token -> users (user_id));
 diesel::joinable!(users_roles -> roles (role_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    access_token,
     devices,
     firmwares,
-    firmwares_tags,
     roles,
-    tags,
     users,
+    users_access_token,
     users_roles,
 );

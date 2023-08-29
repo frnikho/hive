@@ -61,7 +61,7 @@ pub enum UserFindManyClause {
 
 impl UserRepository {
 
-    pub fn find(conn: &mut PgConnection, clause: UserFindOneClause) -> Result<User, ApiException> {
+    pub fn find(conn: &mut PgConnection, clause: &UserFindOneClause) -> Result<User, ApiException> {
         match clause {
             UserFindOneClause::Id(x) => UserModel::find(conn, x),
             UserFindOneClause::Email(x) => UserModel::find_by_email(conn, x),
@@ -70,26 +70,26 @@ impl UserRepository {
             .map_err(|x| x.into())
     }
 
-    pub fn list(conn: &mut PgConnection, pag: Pagination) -> Result<UserList, ApiException> {
+    pub fn list(conn: &mut PgConnection, pag: &Pagination) -> Result<UserList, ApiException> {
         UserModel::list(conn, pag)
             .map(|x|x.into_iter().map(|x|x.into()).collect())
             .map_err(|x| x.into())
     }
 
-    pub fn delete(conn: &mut PgConnection, id_to_delete: String, deleted_by: Option<String>) -> Result<User, ApiException> {
+    pub fn delete(conn: &mut PgConnection, id_to_delete: &String, deleted_by: &Option<String>) -> Result<User, ApiException> {
         UserModel::delete(conn, id_to_delete, deleted_by)
             .map(|x|x.into())
             .map_err(|x| x.into())
     }
 
-    pub fn update(conn: &mut PgConnection, id_to_update: String, update_user: UpdateUser) -> Result<User, ApiException> {
-        UserModel::update(conn, id_to_update, update_user.into())
+    pub fn update(conn: &mut PgConnection, id_to_update: &String, update_user: UpdateUser) -> Result<User, ApiException> {
+        UserModel::update(conn, id_to_update, &update_user.into())
             .map(|x|x.into())
             .map_err(|x| x.into())
     }
 
     pub fn create(conn: &mut PgConnection, create_user: CreateUser) -> Result<User, ApiException> {
-        UserModel::create(conn, create_user.into())
+        UserModel::create(conn, &create_user.into())
             .map(|x|x.into())
             .map_err(|x| x.into())
     }

@@ -23,7 +23,7 @@ impl AuthService {
     }
 
     pub fn login(mut db: DBPooled, body: AuthLoginRequest, session: Session) -> Result<Template<User>, ApiException> {
-        let user = UserRepository::find(&mut db, UserFindOneClause::Email(body.email))?;
+        let user = UserRepository::find(&mut db, &UserFindOneClause::Email(body.email))?;
         user.verify_password(&body.password)
             .then(|| Self::_login("user", user.clone(), session))
             .ok_or(ApiException::BadRequest(String::from("APE-100120")))??;
@@ -38,7 +38,7 @@ impl AuthService {
 
     pub fn _login(kind: &str, user: User, session: Session) -> Result<(), ApiException> {
         session.insert(AuthoritySession::get_key().as_str(), AuthoritySession::new(kind, &user))
-            .map_err(|x| x.into())?;
+            .map_err(|x| ApiException::BadRequest("".to_string()))?;
         Ok(())
     }
 
