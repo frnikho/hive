@@ -9,20 +9,6 @@ pub enum DatabaseException {
     UnknownError(String),
 }
 
-impl Into<DatabaseException> for Error {
-    fn into(self) -> DatabaseException {
-        match self {
-            Error::NotFound => DatabaseException::FindException(String::from("Entity not found")),
-            Error::DeserializationError(..) => DatabaseException::UnknownError(String::from("Deserialization Error !")),
-            Error::DatabaseError(err, _) => match err {
-                DatabaseErrorKind::UniqueViolation => DatabaseException::UniqueViolation(String::from("Entity already exists")),
-                _ => DatabaseException::UnknownError(String::from("Unknown database error")),
-            }
-            _ => DatabaseException::UnknownError(String::from("Unknown database error")),
-        }
-    }
-}
-
 impl Into<ApiException> for DatabaseException {
     fn into(self) -> ApiException {
         match self {
@@ -30,6 +16,20 @@ impl Into<ApiException> for DatabaseException {
             DatabaseException::UnknownError(msg) => ApiException::UnknownDbError(msg.to_string()),
             DatabaseException::ConnexionException(msg) => ApiException::InternalError(msg.to_string()),
             DatabaseException::UniqueViolation(msg) => ApiException::DuplicateResource(msg.to_string()),
+        }
+    }
+}
+
+impl From<Error> for DatabaseException {
+    fn from(err: Error) -> Self {
+        match err {
+            Error::NotFound => DatabaseException::FindException(String::from("Entity not found")),
+            Error::DeserializationError(..) => DatabaseException::UnknownError(String::from("Deserialization Error !")),
+            Error::DatabaseError(err, _) => match err {
+                DatabaseErrorKind::UniqueViolation => DatabaseException::UniqueViolation(String::from("Entity already exists")),
+                _ => DatabaseException::UnknownError(String::from("Unknown database error")),
+            }
+            _ => DatabaseException::UnknownError(String::from("Unknown database error")),
         }
     }
 }

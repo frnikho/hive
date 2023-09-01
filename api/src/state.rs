@@ -1,12 +1,14 @@
 use crate::providers::cache::{CacheClient, create_cache};
 use crate::providers::config::Config;
 use crate::providers::db::{create_pool, DBPool};
+use crate::providers::encrypt::EncryptProvider;
 
 #[derive(Clone, Debug)]
 pub struct AppState {
     pub db: DBPool,
     pub config: Config,
     pub cache: CacheClient,
+    pub encrypt: EncryptProvider,
 }
 
 impl AppState {
@@ -15,6 +17,7 @@ impl AppState {
         Ok (Self {
             db: Self::create_db_pool(&config)?,
             cache: Self::create_cache_client(&config)?,
+            encrypt: Self::create_encrypt_provider(&config),
             config,
         })
     }
@@ -32,5 +35,9 @@ impl AppState {
     fn create_cache_client(config: &Config) -> Result<CacheClient, std::io::Error> {
         create_cache(config.api_cache_url.clone())
             .map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "Error loading cache client"))
+    }
+
+    fn create_encrypt_provider(config: &Config) -> EncryptProvider {
+        EncryptProvider::new(config.api_secret.clone())
     }
 }

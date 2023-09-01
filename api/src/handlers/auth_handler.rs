@@ -20,20 +20,12 @@ impl AuthHandler {
         AuthService::first_login(tool.db, tool.cache, body.value, session)
     }
 
-    async fn logout(_tool: ReqBox, authority: ReqAuthority, _session: Session) -> impl Responder {
-        AuthService::logout(authority.0, _session)
+    async fn logout(authority: ReqAuthority, session: Session) -> impl Responder {
+        AuthService::logout(authority.0, session)
     }
 
-    async fn oauth_code(tool: ReqBox) -> impl Responder {
-        ""
-    }
-
-    async fn oauth_token(tool: ReqBox) -> impl Responder {
-        ""
-    }
-
-    async fn oauth_refresh_token(tool: ReqBox) -> impl Responder {
-        ""
+    async fn who_am_i(authority: ReqAuthority) -> impl Responder {
+        AuthService::who_am_i(authority.0)
     }
 
 }
@@ -43,8 +35,6 @@ impl Handler for AuthHandler {
         cfg.route("/auth/register/", actix_web::web::post().to(Self::first_login));
         cfg.route("/auth/login/", actix_web::web::post().to(Self::login));
         cfg.route("/auth/logout/", actix_web::web::post().to(Self::logout));
-        cfg.route("/auth/oauth/auth/", actix_web::web::post().to(Self::oauth_code));
-        cfg.route("/auth/oauth/token/", actix_web::web::post().to(Self::oauth_token));
-        cfg.route("/auth/oauth/refresh_token/", actix_web::web::post().to(Self::oauth_refresh_token));
+        cfg.route("/auth/whoami/", actix_web::web::get().to(Self::who_am_i));
     }
 }

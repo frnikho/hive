@@ -13,6 +13,7 @@ pub enum ApiException {
     ResourceNotFound(String),
     DuplicateResource(String),
     UnknownDbError(String),
+    InvalidAccessToken(String),
     /// Brief.
     ///
     /// Description.
@@ -61,6 +62,8 @@ impl ResponseError for ApiException {
             ApiException::DuplicateResource(..) => StatusCode::BAD_REQUEST,
             ApiException::UnknownDbError(..) => StatusCode::INTERNAL_SERVER_ERROR,
             ApiException::ValidationError(..) => StatusCode::BAD_REQUEST,
+            ApiException::InvalidAccessToken(..) => StatusCode::UNAUTHORIZED,
+            /*_ => StatusCode::IM_A_TEAPOT*/
         }
     }
 
@@ -80,6 +83,8 @@ impl ResponseError for ApiException {
                 error!("{}", x);
                 response.finish()
             },
+            ApiException::InvalidAccessToken(x) => response.json(json!({"message": x, "code": "APE-100180"})),
+            /*_ => response.json(json!({"code": "IM_A_TEAPOT"})),*/
         }
     }
 }

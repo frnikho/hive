@@ -11,19 +11,19 @@ pub struct DeviceHandler;
 
 impl DeviceHandler {
 
-    async fn list(tool: ReqBox, auth: ReqAuthority, pag: ReqPagination) -> impl Responder {
+    async fn list(_tool: ReqBox, _auth: ReqAuthority, _pag: ReqPagination) -> impl Responder {
         ""
     }
-    async fn create(tool: ReqBox, auth: ReqAuthority, body: Dto<CreateDeviceRequest>) -> impl Responder {
+    async fn create(_tool: ReqBox, _auth: ReqAuthority, _body: Dto<CreateDeviceRequest>) -> impl Responder {
         ""
     }
-    async fn find(tool: ReqBox, auth: ReqAuthority, device_id: Path<String>) -> impl Responder {
+    async fn find(_tool: ReqBox, _auth: ReqAuthority, _device_id: Path<String>) -> impl Responder {
         ""
     }
-    async fn update(tool: ReqBox, auth: ReqAuthority, body: Dto<UpdateDeviceRequest>, device_id: Path<String>) -> impl Responder {
+    async fn update(_tool: ReqBox, _auth: ReqAuthority, _body: Dto<UpdateDeviceRequest>, _device_id: Path<String>) -> impl Responder {
         ""
     }
-    async fn delete(tool: ReqBox, auth: ReqAuthority, device_id: Path<String>) -> impl Responder {
+    async fn delete(_tool: ReqBox, _auth: ReqAuthority, _device_id: Path<String>) -> impl Responder {
         ""
     }
 }

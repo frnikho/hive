@@ -1,9 +1,10 @@
 use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 use crate::models::user::UserModel;
 
 pub type UserList = Vec<User>;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct User {
     pub id: String,
     pub email: String,
@@ -90,7 +91,7 @@ mod test {
     pub fn test_create_user_model() {
         let mut user = User::new(&UserModel::default());
         let created_user = User::new(&UserModel::default());
-        let user = user
+        let _user = user
             .set_created_by(&created_user)
             .set_updated_by(&created_user);
     }

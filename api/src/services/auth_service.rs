@@ -1,7 +1,7 @@
 use actix_session::Session;
 use bcrypt::hash;
 use crate::dtos::auth::{AuthFirstLoginRequest, AuthLoginRequest};
-use crate::entities::authority::Authority;
+use crate::entities::authority::{Authority, LoggedAuthority};
 use crate::entities::session::{AuthoritySession, SessionValue};
 use crate::entities::user::User;
 use crate::exceptions::api::ApiException;
@@ -38,8 +38,12 @@ impl AuthService {
 
     pub fn _login(kind: &str, user: User, session: Session) -> Result<(), ApiException> {
         session.insert(AuthoritySession::get_key().as_str(), AuthoritySession::new(kind, &user))
-            .map_err(|x| ApiException::BadRequest("".to_string()))?;
+            .map_err(|_| ApiException::BadRequest("".to_string()))?;
         Ok(())
+    }
+
+    pub fn who_am_i(auth: Authority) -> Result<Template<LoggedAuthority>, ApiException> {
+        Ok(Template::new(Some(auth.clone()), Some(LoggedAuthority::from(auth))).with_code(200))
     }
 
 }

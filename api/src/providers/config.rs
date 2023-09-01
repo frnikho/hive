@@ -10,7 +10,7 @@ pub struct Config {
     pub api_host: Option<String>,
     pub api_session_url: String,
     pub api_cache_url: String,
-    pub api_session_secret: String,
+    pub api_secret: String,
 }
 
 impl Config {

@@ -6,3 +6,4 @@ pub mod req_authority;
 pub mod req_cache;
 
 pub mod req_queries;
+pub mod req_encrypt;

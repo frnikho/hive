@@ -6,14 +6,17 @@ use crate::exceptions::api::ApiException;
 use crate::extractors::req_cache::ReqCache;
 use crate::extractors::req_config::ReqConfig;
 use crate::extractors::req_db::ReqDb;
+use crate::extractors::req_encrypt::ReqEncrypt;
 use crate::providers::cache::CacheConnection;
 use crate::providers::config::Config;
 use crate::providers::db::DBPooled;
+use crate::providers::encrypt::EncryptProvider;
 
 pub struct ReqBox {
     pub db: DBPooled,
     pub config: Config,
     pub cache: CacheConnection,
+    pub encrypt: EncryptProvider,
 }
 
 impl FromRequest for ReqBox {
@@ -27,6 +30,7 @@ impl FromRequest for ReqBox {
                 db: ReqDb::extract(&request).await?.pool,
                 config: ReqConfig::extract(&request).await?.config,
                 cache: ReqCache::extract(&request).await?.cache,
+                encrypt: ReqEncrypt::extract(&request).await?.0,
             })
         })
     }

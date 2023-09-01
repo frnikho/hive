@@ -1,8 +1,8 @@
 use serde_json::{json, Value};
 use crate::entities::authority::Authority;
-use crate::entities::user::{User, UserList};
+use crate::entities::user::User;
 use crate::exceptions::api::ApiException;
-use crate::templates::template::{TemplateListResponse, TemplateResponse};
+use crate::templates::template::TemplateResponse;
 
 impl TemplateResponse for User {
     fn response(&self, _authority: Option<Authority>) -> Result<Value, ApiException> {
@@ -13,18 +13,6 @@ impl TemplateResponse for User {
             "created_date": self.created_date,
             "updated_date": self.updated_date,
             "created_by": a,
-        }))
-    }
-}
-
-impl TemplateListResponse for UserList {
-    fn response(&self, _authority: Option<Authority>, pag: crate::entities::pagination::Pagination) -> Result<Value, ApiException> {
-        let data = self.iter().map(|x| x.response(None)).collect::<Result<Vec<Value>, ApiException>>()?;
-        Ok(json!({
-            "data": data,
-            "count": data.len(),
-            "page": pag.page,
-            "limit": pag.limit,
         }))
     }
 }

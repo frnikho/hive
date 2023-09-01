@@ -1,6 +1,6 @@
 use actix_web::Responder;
 use actix_web::web::{Path, ServiceConfig};
-use crate::dtos::user::{CreateUserRequest, UpdateUserRequest};
+use crate::dtos::user::{CreateAccessTokenRequest, CreateUserRequest, UpdateUserRequest};
 use crate::extractors::req_authority::ReqAuthority;
 use crate::extractors::req_box::ReqBox;
 use crate::extractors::req_dto::Dto;
@@ -33,20 +33,15 @@ impl UserHandler {
     }
 
     async fn list_access_token(mut tool: ReqBox, auth: ReqAuthority, pag: ReqPagination, path: Path<String>) -> impl Responder {
-        UserService::list_access_token(&mut tool.db, auth.0,pag.0, path.into_inner());
-        ""
+        UserService::list_access_token(&mut tool.db, auth.0,pag.0, path.into_inner())
     }
 
-    async fn create_access_token(mut tool: ReqBox, auth: ReqAuthority, pag: ReqPagination, path: Path<String>) -> impl Responder {
-        ""
-    }
-
-    async fn get_access_token(mut tool: ReqBox, auth: ReqAuthority, path: Path<(String, String)>) -> impl Responder {
-        ""
+    async fn create_access_token(tool: ReqBox, auth: ReqAuthority, path: Path<String>, body: Dto<CreateAccessTokenRequest>) -> impl Responder {
+        UserService::create_access_token(tool, auth.0, path.into_inner(), body.value)
     }
 
     async fn revoke_access_token(mut tool: ReqBox, auth: ReqAuthority, path: Path<(String, String)>) -> impl Responder {
-        ""
+        UserService::delete_access_token(&mut tool.db, auth.0, path.clone().0, path.into_inner().1)
     }
 }
 
@@ -59,7 +54,6 @@ impl Handler for UserHandler {
         cfg.route("/users/{id}/", actix_web::web::delete().to(Self::delete));
         cfg.route("/users/{id}/access_token/", actix_web::web::get().to(Self::list_access_token));
         cfg.route("/users/{id}/access_token/", actix_web::web::post().to(Self::create_access_token));
-        cfg.route("/users/{id}/access_token/{token_id}/", actix_web::web::get().to(Self::get_access_token));
         cfg.route("/users/{id}/access_token/{token_id}/", actix_web::web::delete().to(Self::revoke_access_token));
     }
 }

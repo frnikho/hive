@@ -171,7 +171,7 @@ impl UserModel {
     }
 
     pub fn remove_role(&self, conn: &mut PgConnection, role: &RoleModel) -> Result<(), DatabaseException> {
-        self.get_role(conn, &role.id.clone()).map_err(|x| x.into())?;
+        self.get_role(conn, &role.id.clone())?;
         diesel::delete(users_roles::table.filter(users_roles::user_id.eq(self.id.clone()).and(users_roles::role_id.eq(role.id.clone()))))
             .execute(conn)
             .map(|_| ())

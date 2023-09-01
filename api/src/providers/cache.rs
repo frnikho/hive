@@ -10,7 +10,7 @@ pub fn create_cache(redis_cache_url: String) -> Result<CacheClient, std::io::Err
         .map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "Error loading database pool"))
 }
 
-pub fn create_super_user_token(con: &mut CacheConnection) -> Result<String, std::io::Error> {
+pub fn generate_super_user_token(con: &mut CacheConnection) -> Result<String, std::io::Error> {
     let token = Token::SuperUserToken.generate();
     con.json_set("super_user_token", "$", &token)
         .map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "Cannot create super user token !"))?;

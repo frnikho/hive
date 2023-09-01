@@ -1,6 +1,7 @@
 use actix_web::body::BoxBody;
 use actix_web::{HttpRequest, HttpResponse, Responder, ResponseError};
 use actix_web::http::StatusCode;
+use serde::Serialize;
 use serde_json::Value;
 use crate::entities::authority::Authority;
 use crate::entities::pagination::Pagination;
@@ -66,15 +67,15 @@ impl<T> Responder for Template<T> where T: TemplateResponse {
     }
 }
 
-pub struct TemplateList<T> {
+pub struct TemplateList<T: TemplateResponse> {
     pub code: Option<u16>,
-    pub data: T,
+    pub data: Vec<T>,
     pub authority: Option<Authority>,
     pub pagination: Pagination
 }
 
-impl<T> TemplateList<T> where T: TemplateListResponse {
-    pub fn new(authority: Option<Authority>, value: T, pagination: Pagination) -> Self {
+impl<T> TemplateList<T> where T: TemplateResponse {
+    pub fn new(authority: Option<Authority>, value: Vec<T>, pagination: Pagination) -> Self {
         TemplateList {
             code: None,
             data: value,
@@ -94,15 +95,30 @@ impl<T> TemplateList<T> where T: TemplateListResponse {
     }
 }
 
-impl<T> Responder for TemplateList<T> where T: TemplateListResponse {
+#[derive(Serialize)]
+struct TR<T: Serialize> {
+    data: T,
+    limit: u16,
+    page: u16,
+    count: usize,
+}
+
+impl<T> Responder for TemplateList<T> where T: TemplateResponse {
     type Body = BoxBody;
 
     fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
         let mut response = HttpResponse::build(StatusCode::from_u16(self.code.unwrap_or(200)).unwrap_or_default());
-        self.data.response(self.authority, self.pagination).map(|data| {
-            response.json(data)
-        }).unwrap_or_else(|x| {
-            x.error_response()
-        })
+        let data = self.data.iter().map(|x| x.response(None)).collect::<Result<Vec<Value>, ApiException>>();
+        match data {
+            Ok(data) => {
+                response.json(TR {
+                    count: data.len(),
+                    data,
+                    limit: self.pagination.limit,
+                    page: self.pagination.page,
+                })
+            },
+            Err(x) => x.error_response()
+        }
     }
 }

@@ -7,7 +7,7 @@ use actix_web::web::Data;
 use actix_web::middleware::Logger;
 use env_logger::Env;
 use crate::handlers::handler::Handler;
-use crate::providers::cache::create_super_user_token;
+use crate::providers::cache::generate_super_user_token;
 use crate::state::AppState;
 
 pub mod models;
@@ -35,14 +35,12 @@ async fn main() -> Result<()> {
     let config = state.config.clone();
     let store = RedisSessionStore::new(config.api_session_url.clone()).await
         .map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "Error loading redis session store"))?;
-
-    create_super_user_token(&mut state.cache.get_connection().unwrap())?;
-
+    generate_super_user_token(&mut state.cache.get_connection().unwrap())?;
     HttpServer::new(move || {
         App::new()
             .wrap(SessionMiddleware::new(
                 store.clone(),
-                Key::from(config.api_session_secret.clone().as_bytes())
+                Key::from(config.api_secret.clone().as_bytes())
             ))
             .wrap(Logger::default())
             .app_data(Data::new(state.clone()))
@@ -50,7 +48,6 @@ async fn main() -> Result<()> {
             .configure(handlers::auth_handler::AuthHandler::route)
             .configure(handlers::devices_handler::DeviceHandler::route)
             .configure(handlers::system_handler::SystemHandler::route)
-
     })
         .workers(DEFAULT_WORKERS)
         .bind((DEFAULT_HOST.to_string(), DEFAULT_PORT))?

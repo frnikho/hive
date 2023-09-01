@@ -1,6 +1,7 @@
-use chrono::Utc;
+use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use crate::repositories::access_token_repo::CreateAccessToken;
 use crate::repositories::user_repo::{CreateUser, UpdateUser};
 use crate::utils::token::Token;
 
@@ -47,16 +48,25 @@ impl UpdateUserRequest {
 pub struct CreateAccessTokenRequest {
     #[validate(length(min = 2, max = 255))]
     name: String,
-    #[validate(length(max = 512))]
-    description: Option<String>,
 }
 
 impl CreateAccessTokenRequest {
-    pub fn transform_repo(self, created_by: Option<String>) -> CreateA {
+    pub fn transform_repo(self, key: String, expiration: Option<NaiveDateTime>) -> CreateAccessToken {
+        CreateAccessToken {
+            name: self.name,
+            key,
+            created_by_user_id: None,
+            expiration,
+        }
+    }
+}
+
+/*impl CreateAccessTokenRequest {
+    pub fn transform_repo(self, created_by: Option<String>) -> CreateAccessToken {
         CreateAccessToken {
             name: self.name,
             description: self.description,
             created_by_user_id: created_by,
         }
     }
-}
+}*/
