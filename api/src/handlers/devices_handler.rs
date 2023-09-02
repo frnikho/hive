@@ -26,6 +26,12 @@ impl DeviceHandler {
     async fn delete(_tool: ReqBox, _auth: ReqAuthority, _device_id: Path<String>) -> impl Responder {
         ""
     }
+    async fn history(_tool: ReqBox, _auth: ReqAuthority, _device_id: Path<String>) -> impl Responder {
+        ""
+    }
+    async fn status(_tool: ReqBox, _auth: ReqAuthority, _device_id: Path<String>) -> impl Responder {
+        ""
+    }
 }
 
 impl Handler for DeviceHandler {
@@ -35,5 +41,7 @@ impl Handler for DeviceHandler {
         cfg.route("/devices/{id}/", actix_web::web::get().to(Self::find));
         cfg.route("/devices/{id}/", actix_web::web::patch().to(Self::update));
         cfg.route("/devices/{id}/", actix_web::web::delete().to(Self::delete));
+        cfg.route("/devices/{id}/history/", actix_web::web::get().to(Self::history));
+        cfg.route("/devices/{id}/status/", actix_web::web::get().to(Self::status));
     }
 }

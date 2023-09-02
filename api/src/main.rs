@@ -1,4 +1,5 @@
 use std::io::Result;
+use actix_cors::Cors;
 use actix_session::SessionMiddleware;
 use actix_session::storage::RedisSessionStore;
 use actix_web::{App, HttpServer};
@@ -42,6 +43,7 @@ async fn main() -> Result<()> {
                 store.clone(),
                 Key::from(config.api_secret.clone().as_bytes())
             ))
+            .wrap(Cors::permissive())
             .wrap(Logger::default())
             .app_data(Data::new(state.clone()))
             .configure(handlers::user_handler::UserHandler::route)

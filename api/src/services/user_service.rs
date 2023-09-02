@@ -40,7 +40,7 @@ impl UserService {
 
     pub fn create_access_token(mut tool: ReqBox, auth: Authority, user_id: String, body: CreateAccessTokenRequest) -> Result<Template<AccessToken>, ApiException> {
         let user = UserRepository::find(&mut tool.db, &UserFindOneClause::Id(user_id))?;
-        let token = AccessTokenRepo::create_access_token(&mut tool.db, &user, body.transform_repo(Token::AccessToken.generate(), None))?;
+        let token = AccessTokenRepo::create_access_token(&mut tool.db, &user, body.clone().transform_repo(Token::AccessToken.generate(), body.get_expiration()?))?;
         TokenSession::new(TokenSessionKind::AccessToken(token.clone()), &user).save_to_cache(&mut tool.cache)
             .map_err(|x| x.into())?;
         Ok(Template::new(Some(auth), Some(token)))

@@ -5,3 +5,4 @@ pub mod validation;
 pub mod session;
 pub mod cache;
 pub mod encrypt;
+pub mod parsing;

@@ -1,6 +1,7 @@
 use chrono::{NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
+use crate::exceptions::api::ApiException;
 use crate::repositories::access_token_repo::CreateAccessToken;
 use crate::repositories::user_repo::{CreateUser, UpdateUser};
 use crate::utils::token::Token;
@@ -47,7 +48,8 @@ impl UpdateUserRequest {
 #[derive(Deserialize, Serialize, Clone, Debug, Validate)]
 pub struct CreateAccessTokenRequest {
     #[validate(length(min = 2, max = 255))]
-    name: String,
+    pub name: String,
+    pub expiration: Option<i64>
 }
 
 impl CreateAccessTokenRequest {
@@ -58,6 +60,19 @@ impl CreateAccessTokenRequest {
             created_by_user_id: None,
             expiration,
         }
+    }
+
+    pub fn get_expiration(&self) -> Result<Option<NaiveDateTime>, ApiException> {
+        Ok(match self.expiration {
+            Some(x) => {
+                let d = NaiveDateTime::from_timestamp_millis(x).ok_or(ApiException::ValidationError(vec![String::from("Invalid expiration format !")]))?;
+                if d < Utc::now().naive_utc() {
+                    return Err(ApiException::ValidationError(vec![String::from("Expiration date must be greater than now !")]));
+                }
+                Some(d)
+            },
+            None => None
+        })
     }
 }
 
