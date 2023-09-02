@@ -25,8 +25,17 @@ impl From<Error> for DatabaseException {
         match err {
             Error::NotFound => DatabaseException::FindException(String::from("Entity not found")),
             Error::DeserializationError(..) => DatabaseException::UnknownError(String::from("Deserialization Error !")),
+            Error::SerializationError(..) => DatabaseException::UnknownError(String::from("Serialization Error !")),
+            Error::QueryBuilderError(..) => DatabaseException::UnknownError(String::from("QueryBuilder Error !")),
+            Error::RollbackTransaction => DatabaseException::UnknownError(String::from("Rollback transaction")),
+            Error::AlreadyInTransaction => DatabaseException::UnknownError(String::from("Already in transaction")),
             Error::DatabaseError(err, _) => match err {
                 DatabaseErrorKind::UniqueViolation => DatabaseException::UniqueViolation(String::from("Entity already exists")),
+                DatabaseErrorKind::UnableToSendCommand => DatabaseException::UnknownError(String::from("Unable to send command to database")),
+                DatabaseErrorKind::CheckViolation => DatabaseException::UnknownError(String::from("Check violation")),
+                DatabaseErrorKind::ForeignKeyViolation => DatabaseException::UnknownError(String::from("Foreign key violation")),
+                DatabaseErrorKind::SerializationFailure => DatabaseException::UnknownError(String::from("Serialization failure")),
+                DatabaseErrorKind::ReadOnlyTransaction => DatabaseException::ConnexionException(String::from("Unable to acquire connection")),
                 _ => DatabaseException::UnknownError(String::from("Unknown database error")),
             }
             _ => DatabaseException::UnknownError(String::from("Unknown database error")),
