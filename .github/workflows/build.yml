@@ -28,8 +28,8 @@ jobs:
       - name: Rust version check
         shell: bash
         run: |
-          cargo +${{ matrix.rust }} --version
-          rustc +${{ matrix.rust }} --version
+          cargo +stable --version
+          rustc +stable --version
       - name: Cargo build api
         uses: actions-rs/cargo@v1
         with:
