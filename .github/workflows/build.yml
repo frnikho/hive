@@ -33,7 +33,5 @@ jobs:
       - name: Cargo build api
         uses: actions-rs/cargo@v1
         with:
-          cwd: ./api
-          working-directory: api
           command: build
-          args: --release --all-features
+          args: --release --all-features cargo run --manifest-path api/Cargo.toml
