@@ -30,7 +30,8 @@ jobs:
         run: |
           cargo +${{ matrix.rust }} --version
           rustc +${{ matrix.rust }} --version
-        working-directory: api
+      - name: Cargo build api
+        uses: actions-rs/cargo@v1
         with:
           cwd: ./api
           working-directory: api
