@@ -24,6 +24,18 @@ create table devices
             on update cascade on delete set null
 );
 
+create table devices_config
+(
+    device_id varchar                   not null
+        constraint devices_config_pk
+            primary key
+        constraint devices_config_devices_id_fk
+            references devices
+            on update cascade on delete cascade,
+    pull      jsonb default '{}'::jsonb not null,
+    memory    jsonb default '{}'::jsonb not null
+);
+
 create table devices_pull_history
 (
     id                varchar   default nanoid() not null
